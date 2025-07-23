@@ -1,5 +1,6 @@
 import pygame
 import sys
+import subprocess
 
 # --- Global Config ---
 WIDTH, HEIGHT = 1280, 720
@@ -43,6 +44,12 @@ def main_menu(screen, assets):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if play_rect.collidepoint(mouse_pos):
+                    # Ejecutar scenary01.py como una nueva ventana
+                    subprocess.Popen(["python", "scenary01.py"])
+                    return  # Cierra el menú para no duplicar ventanas
 
         # Background draw
         screen.blit(assets["background"], (0, 0))
