@@ -87,5 +87,66 @@ while True:
     else:
         screen.blit(current_sprite, (drone_x, drone_y - scroll_y))
 
+
+    # --- Lista de elementos físicos (imagen, posición, máscara) ---
+    elementos_fisicos = []
+
+    # --- Cargar element01.png ---
+    img_01 = pygame.image.load("assets/background01/element01.png").convert_alpha()
+    pos_01 = (-100, 2200)  # (x, y) en coordenadas del fondo — puedes ajustarlo
+    mask_01 = pygame.mask.from_surface(img_01)
+    elementos_fisicos.append({"img": img_01, "pos": pos_01, "mask": mask_01})
+
+    # --- Cargar element02.png ---
+    img_02 = pygame.image.load("assets/background01/element02.png").convert_alpha()
+    pos_02 = (-100, 1810)   # (x, y) en coordenadas del fondo
+    mask_02 = pygame.mask.from_surface(img_02)
+    elementos_fisicos.append({"img": img_02, "pos": pos_02, "mask": mask_02})
+
+    # --- Cargar element03.png ---
+    img_03 = pygame.image.load("assets/background01/element03.png").convert_alpha()
+    pos_03 = (360, 1740)  # (x, y) en coordenadas del fondo
+    mask_03 = pygame.mask.from_surface(img_03)
+    elementos_fisicos.append({"img": img_03, "pos": pos_03, "mask": mask_03})
+
+    # --- Cargar element04.png ---
+    img_04 = pygame.image.load("assets/background01/element04.png").convert_alpha()
+    pos_04 = (-90, 1480)  # (x, y) en coordenadas del fondo
+    mask_04 = pygame.mask.from_surface(img_04)
+    elementos_fisicos.append({"img": img_04, "pos": pos_04, "mask": mask_04})
+
+    
+
+    # --- Crear máscara del drone ---
+    drone_surface = drone_sprites[drone_index]
+    drone_mask = pygame.mask.from_surface(drone_surface)
+
+    # --- Revisar colisión con cada elemento físico ---
+    for elem in elementos_fisicos:
+        elem_x, elem_y = elem["pos"]
+        offset_x = elem_x - drone_x
+        offset_y = elem_y - drone_y
+
+        if drone_mask.overlap(elem["mask"], (offset_x, offset_y)):
+            if keys[pygame.K_UP]:
+                drone_y += DRONE_SPEED
+            if keys[pygame.K_DOWN]:
+                drone_y -= DRONE_SPEED
+            if keys[pygame.K_LEFT]:
+                drone_x += DRONE_SPEED
+            if keys[pygame.K_RIGHT]:
+                drone_x -= DRONE_SPEED
+
+    # --- Dibujar todos los objetos físicos con scroll ---
+    for elem in elementos_fisicos:
+        elem_x, elem_y = elem["pos"]
+        screen.blit(elem["img"], (elem_x, elem_y - scroll_y))
+
+
+
+
+
+
+
     pygame.display.flip()
     clock.tick(FPS)
