@@ -115,6 +115,36 @@ while True:
     mask_04 = pygame.mask.from_surface(img_04)
     elementos_fisicos.append({"img": img_04, "pos": pos_04, "mask": mask_04})
 
+    # --- Cargar element06.png ---
+    img_06 = pygame.image.load("assets/background01/element06.png").convert_alpha()
+    pos_06 = (-100, 900)  # (x, y) en coordenadas del fondo
+    mask_06 = pygame.mask.from_surface(img_06)
+    elementos_fisicos.append({"img": img_06, "pos": pos_06, "mask": mask_06})
+
+    # --- Cargar element05.png ---
+    img_05 = pygame.image.load("assets/background01/element05.png").convert_alpha()
+    pos_05 = (580, 1150)  # (x, y) en coordenadas del fondo
+    mask_05 = pygame.mask.from_surface(img_05)
+    elementos_fisicos.append({"img": img_05, "pos": pos_05, "mask": mask_05})
+
+    # --- Cargar element07.png ---
+    img_07 = pygame.image.load("assets/background01/element07.png").convert_alpha()
+    pos_07 = (580, 400 )  # (x, y) en coordenadas del fondo
+    mask_07 = pygame.mask.from_surface(img_07)
+    elementos_fisicos.append({"img": img_07, "pos": pos_07, "mask": mask_07})
+
+    # --- Cargar element08.png ---
+    img_08 = pygame.image.load("assets/background01/element08.png").convert_alpha()
+    pos_08 = (-200, 200 )  # (x, y) en coordenadas del fondo
+    mask_08 = pygame.mask.from_surface(img_08)
+    elementos_fisicos.append({"img": img_08, "pos": pos_08, "mask": mask_08})
+
+    # --- Cargar element09.png ---
+    img_09 = pygame.image.load("assets/background01/element09.png").convert_alpha()
+    pos_09 = (-100, 100 )  # (x, y) en coordenadas del fondo
+    mask_09 = pygame.mask.from_surface(img_09)
+    elementos_fisicos.append({"img": img_09, "pos": pos_09, "mask": mask_09})
+
     
 
     # --- Crear máscara del drone ---
@@ -128,14 +158,16 @@ while True:
         offset_y = elem_y - drone_y
 
         if drone_mask.overlap(elem["mask"], (offset_x, offset_y)):
+            retroceso = int(DRONE_SPEED * 2.5)
             if keys[pygame.K_UP]:
-                drone_y += DRONE_SPEED
+                drone_y += retroceso
             if keys[pygame.K_DOWN]:
-                drone_y -= DRONE_SPEED
+                drone_y -= retroceso
             if keys[pygame.K_LEFT]:
-                drone_x += DRONE_SPEED
+                drone_x += retroceso
             if keys[pygame.K_RIGHT]:
-                drone_x -= DRONE_SPEED
+                drone_x -= retroceso
+    
 
     # --- Dibujar todos los objetos físicos con scroll ---
     for elem in elementos_fisicos:
