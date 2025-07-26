@@ -158,14 +158,16 @@ while True:
         offset_y = elem_y - drone_y
 
         if drone_mask.overlap(elem["mask"], (offset_x, offset_y)):
+            retroceso = int(DRONE_SPEED * 2.5)
             if keys[pygame.K_UP]:
-                drone_y += DRONE_SPEED
+                drone_y += retroceso
             if keys[pygame.K_DOWN]:
-                drone_y -= DRONE_SPEED
+                drone_y -= retroceso
             if keys[pygame.K_LEFT]:
-                drone_x += DRONE_SPEED
+                drone_x += retroceso
             if keys[pygame.K_RIGHT]:
-                drone_x -= DRONE_SPEED
+                drone_x -= retroceso
+    
 
     # --- Dibujar todos los objetos físicos con scroll ---
     for elem in elementos_fisicos:
