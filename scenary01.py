@@ -14,7 +14,7 @@ pygame.display.set_caption("Escenario 01")
 clock = pygame.time.Clock()
 
 # --- Cargar fondo largo ---
-background = pygame.image.load("assets/background01/background.png").convert()
+background = pygame.image.load("assets/background01/background_clean.png").convert()
 background = pygame.transform.scale(background, (WIDTH, 2880))
 BACKGROUND_HEIGHT = background.get_height()
 
@@ -38,21 +38,27 @@ while True:
             pygame.quit()
             sys.exit()
 
-    # --- Movimiento del drone ---
+    # --- Movimiento del drone con boost ---
     keys = pygame.key.get_pressed()
     is_moving = False
+
+    # Detectar si está presionado shift izquierdo
+    speed_multiplier = 3 if keys[pygame.K_LSHIFT] else 1
+    actual_speed = DRONE_SPEED * speed_multiplier
+
     if keys[pygame.K_UP]:
-        drone_y -= DRONE_SPEED
+        drone_y -= actual_speed
         is_moving = True
     if keys[pygame.K_DOWN]:
-        drone_y += DRONE_SPEED
+        drone_y += actual_speed
         is_moving = True
     if keys[pygame.K_LEFT]:
-        drone_x -= DRONE_SPEED
+        drone_x -= actual_speed
         is_moving = True
     if keys[pygame.K_RIGHT]:
-        drone_x += DRONE_SPEED
+        drone_x += actual_speed
         is_moving = True
+
 
     # --- Límite del drone dentro del fondo ---
     drone_y = max(0, min(BACKGROUND_HEIGHT - drone_height, drone_y))
@@ -129,19 +135,19 @@ while True:
 
     # --- Cargar element07.png ---
     img_07 = pygame.image.load("assets/background01/element07.png").convert_alpha()
-    pos_07 = (580, 400 )  # (x, y) en coordenadas del fondo
+    pos_07 = (350, 400 )  # (x, y) en coordenadas del fondo
     mask_07 = pygame.mask.from_surface(img_07)
     elementos_fisicos.append({"img": img_07, "pos": pos_07, "mask": mask_07})
 
     # --- Cargar element08.png ---
     img_08 = pygame.image.load("assets/background01/element08.png").convert_alpha()
-    pos_08 = (-200, 200 )  # (x, y) en coordenadas del fondo
+    pos_08 = (-250, 290 )  # (x, y) en coordenadas del fondo
     mask_08 = pygame.mask.from_surface(img_08)
     elementos_fisicos.append({"img": img_08, "pos": pos_08, "mask": mask_08})
 
     # --- Cargar element09.png ---
     img_09 = pygame.image.load("assets/background01/element09.png").convert_alpha()
-    pos_09 = (-100, 100 )  # (x, y) en coordenadas del fondo
+    pos_09 = (-20, 10 )  # (x, y) en coordenadas del fondo
     mask_09 = pygame.mask.from_surface(img_09)
     elementos_fisicos.append({"img": img_09, "pos": pos_09, "mask": mask_09})
 
