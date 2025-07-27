@@ -34,13 +34,21 @@ drone_x = WIDTH // 2 - drone_width // 2
 drone_y = BACKGROUND_HEIGHT - HEIGHT // 2 - drone_height // 2
 drone_rect = pygame.Rect(drone_x, drone_y, drone_width, drone_height)
 
-# --- Referencia para NPC ---
-class DronRef:
-    def __init__(self, rect):
-        self.rect = rect
+# --- Referencia viva para NPC y flechas ---
+class DronSprite(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = None
+        self.rect = None
+        self.mask = None
 
-# --- Inicializar grupo de indios y posiciones ---
+dron_ref_global = DronSprite()
+
+# --- Inicializar grupos ---
 indios = pygame.sprite.Group()
+flechas = pygame.sprite.Group()
+grupo_colisiones = pygame.sprite.Group()
+
 indios_creados = False
 INDIO_START_DELAY = 5  # segundos
 
@@ -52,7 +60,7 @@ INDIO_POSICIONES = [
     (random.randint(100, 1000), 200),
 ]
 
-# --- Elementos físicos ---
+# --- Elementos físicos del fondo ---
 elementos_fisicos = []
 elementos_info = [
     ("element01.png", (-100, 2200)),
@@ -69,7 +77,15 @@ elementos_info = [
 for filename, pos in elementos_info:
     img = pygame.image.load(f"assets/background01/{filename}").convert_alpha()
     mask = pygame.mask.from_surface(img)
+
+    # Guardar para colisiones con el dron
     elementos_fisicos.append({"img": img, "pos": pos, "mask": mask})
+
+    # Agregar colisionables para NPCs
+    sprite = pygame.sprite.Sprite()
+    sprite.image = img
+    sprite.rect = img.get_rect(topleft=pos)
+    grupo_colisiones.add(sprite)
 
 # --- Loop principal ---
 while True:
@@ -78,6 +94,9 @@ while True:
             pygame.quit()
             sys.exit()
 
+    screen.fill((255, 255, 255))
+
+    # --- Movimiento del dron ---
     keys = pygame.key.get_pressed()
     is_moving = False
     speed_multiplier = 3 if keys[pygame.K_LSHIFT] else 1
@@ -103,17 +122,26 @@ while True:
     drone_rect.x = drone_x
     drone_rect.y = drone_y
 
+    # --- Scroll de cámara ---
     scroll_y = drone_y + drone_height // 2 - HEIGHT // 2
     scroll_y = max(0, min(scroll_y, BACKGROUND_HEIGHT - HEIGHT))
 
+    # --- Animación del dron ---
     drone_timer += 1
     if drone_timer >= 10:
         drone_index = (drone_index + 1) % 2
         drone_timer = 0
 
+    current_sprite = drone_sprites[drone_index]
+
+    # --- Actualizar referencia viva del dron ---
+    dron_ref_global.rect = drone_rect.copy()
+    dron_ref_global.image = current_sprite
+    dron_ref_global.mask = pygame.mask.from_surface(current_sprite)
+
     screen.blit(background, (0, -scroll_y))
 
-    current_sprite = drone_sprites[drone_index]
+    # --- Dibujar dron ---
     if is_moving:
         zoomed_sprite = pygame.transform.scale(
             current_sprite,
@@ -124,7 +152,7 @@ while True:
     else:
         screen.blit(current_sprite, (drone_x, drone_y - scroll_y))
 
-    # --- Colisiones físicas ---
+    # --- Colisiones físicas del dron ---
     drone_mask = pygame.mask.from_surface(current_sprite)
     for elem in elementos_fisicos:
         elem_x, elem_y = elem["pos"]
@@ -137,21 +165,27 @@ while True:
             if keys[pygame.K_LEFT]: drone_x += retroceso
             if keys[pygame.K_RIGHT]: drone_x -= retroceso
 
+    # --- Dibujar elementos físicos ---
     for elem in elementos_fisicos:
         elem_x, elem_y = elem["pos"]
         screen.blit(elem["img"], (elem_x, elem_y - scroll_y))
 
     # --- Crear indios después del delay ---
-    dt = clock.get_time() / 1000
-    if not indios_creados and pygame.time.get_ticks() > INDIO_START_DELAY * 1000:
+    if not indios_creados and pygame.time.get_ticks() >= INDIO_START_DELAY * 1000:
         for pos in INDIO_POSICIONES:
-            indio = Indio(pos=pos, drone_reference=DronRef(drone_rect), colisiones=elementos_fisicos)
+            indio = Indio(pos[0], pos[1], dron_ref_global, flechas, grupo_colisiones)
             indios.add(indio)
         indios_creados = True
 
-    indios.update(dt, indios.sprites())
+    # --- Actualizar y dibujar indios ---
+    indios.update(dron_ref_global)
     for indio in indios:
-        indio.draw(screen, scroll_y)
+        screen.blit(indio.image, (indio.rect.x, indio.rect.y - scroll_y))
+
+    # --- Actualizar y dibujar flechas ---
+    flechas.update(dron_ref_global)
+    for flecha in flechas:
+        screen.blit(flecha.image, (flecha.rect.x, flecha.rect.y - scroll_y))
 
     pygame.display.flip()
     clock.tick(FPS)
