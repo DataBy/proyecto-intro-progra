@@ -60,7 +60,6 @@ class Indio(pygame.sprite.Sprite):
         self.state = "running"
 
         self.flechas = pygame.sprite.Group()
-
         self.free_roaming_time = 2  # segundos sin colisiones al inicio
         self.total_time = 0
 
@@ -98,7 +97,7 @@ class Indio(pygame.sprite.Sprite):
             self.rect.x += int(math.cos(angle) * INDIO_SPEED)
             self.rect.y += int(math.sin(angle) * INDIO_SPEED)
 
-            # Verificar colisión con obstáculos después de free roaming
+            # Colisiones con obstáculos después del roaming
             if self.total_time > self.free_roaming_time:
                 for obj in self.colisiones:
                     offset_x = obj["pos"][0] - self.rect.x
