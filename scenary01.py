@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 from npc_indio import Indio
+from npc_tucan import Ave
 
 # --- Configuración ---
 WIDTH, HEIGHT = 1280, 720
@@ -47,10 +48,15 @@ dron_ref_global = DronSprite()
 # --- Inicializar grupos ---
 indios = pygame.sprite.Group()
 flechas = pygame.sprite.Group()
+aves = pygame.sprite.Group()
+grupo_animaciones_ave = pygame.sprite.Group()
+proyectiles_ave = pygame.sprite.Group()
 grupo_colisiones = pygame.sprite.Group()
 
 indios_creados = False
 INDIO_START_DELAY = 5  # segundos
+aves_creadas = False
+AVE_START_DELAY = 5
 
 INDIO_POSICIONES = [
     (random.randint(100, 1000), 2600),
@@ -59,6 +65,13 @@ INDIO_POSICIONES = [
     (random.randint(100, 1000), 600),
     (random.randint(100, 1000), 200),
 ]
+
+AVE_POSICIONES = [
+    pygame.Rect(random.randint(100, 1000), 2200, 120, 100),
+    pygame.Rect(random.randint(100, 1000), 1800, 120, 100),
+    pygame.Rect(random.randint(100, 1000), 1000, 120, 100),
+]
+
 
 # --- Elementos físicos del fondo ---
 elementos_fisicos = []
@@ -186,6 +199,29 @@ while True:
     flechas.update(dron_ref_global)
     for flecha in flechas:
         screen.blit(flecha.image, (flecha.rect.x, flecha.rect.y - scroll_y))
+    
+    if not aves_creadas and pygame.time.get_ticks() >= AVE_START_DELAY * 1000:
+        for pos in AVE_POSICIONES:
+            ave = Ave(pos, dron_ref_global, grupo_animaciones_ave, proyectiles_ave, grupo_colisiones)
+            aves.add(ave)
+        aves_creadas = True
+
+
+    
+    for ave in aves:
+        ave.update(dron_ref_global)
+        screen.blit(ave.image, (ave.rect.x, ave.rect.y - scroll_y))
+
+
+    proyectiles_ave.update(dron_ref_global)
+    for proyectil in proyectiles_ave:
+        screen.blit(proyectil.image, (proyectil.rect.x, proyectil.rect.y - scroll_y))
+    
+    
+    grupo_animaciones_ave.update()
+    for anim in grupo_animaciones_ave:
+        screen.blit(anim.image, (anim.rect.x, anim.rect.y - scroll_y))
+
 
     pygame.display.flip()
     clock.tick(FPS)
