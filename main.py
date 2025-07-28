@@ -49,3 +49,6 @@ while True:
     
 
     pygame.display.flip()
+
+
+# TypeError: Indio.__init__() got an unexpected keyword argument 'id'
