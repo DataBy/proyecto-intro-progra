@@ -30,6 +30,11 @@ class proyectil_ave(pygame.sprite.Sprite):
         if not pygame.Rect(0, 0, 1280, 2880).colliderect(self.rect):
             self.kill()
 
+        if pygame.sprite.collide_mask(self, drone_ref):
+            self.kill()
+            if hasattr(drone_ref, "vida_manager"):
+                drone_ref.vida_manager.perder_vida()
+
 
 class Animacion_disparo_ave(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos, all_projectiles):
