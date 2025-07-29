@@ -5,9 +5,9 @@ from npc_indio import Indio
 from npc_tucan import Ave
 from sistema_vidas import VidaManager, VidaFlotante
 from game_over_screen import mostrar_pantalla_gameover
+from lluvia import TormentaTropical
 
 def jugar_escenario(screen):
-    # --- Configuración ---
     WIDTH, HEIGHT = 1280, 720
     FPS = 60
     DRONE_SPEED = 5
@@ -15,7 +15,6 @@ def jugar_escenario(screen):
 
     clock = pygame.time.Clock()
 
-    # --- Vidas ---
     vida_manager = VidaManager()
     vidas_flotantes = pygame.sprite.Group(
         VidaFlotante(200, 2500),
@@ -23,17 +22,14 @@ def jugar_escenario(screen):
         VidaFlotante(700, 600)
     )
 
-    # --- Cargar fondo largo ---
     background = pygame.image.load("assets/background01/background_clean.png").convert()
     background = pygame.transform.scale(background, (WIDTH, 2880))
     BACKGROUND_HEIGHT = background.get_height()
 
-    # --- Cargar sprites del drone ---
     sprite_0 = pygame.image.load("assets/drone_3cajas/sprite_0.png").convert_alpha()
     sprite_1 = pygame.image.load("assets/drone_3cajas/sprite_1.png").convert_alpha()
     drone_sprites = [sprite_0, sprite_1]
 
-    # --- Variables del drone ---
     drone_index = 0
     drone_timer = 0
     drone_width = sprite_0.get_width()
@@ -51,7 +47,6 @@ def jugar_escenario(screen):
 
     dron_ref_global = DronSprite()
 
-    # --- Inicializar grupos ---
     indios = pygame.sprite.Group()
     flechas = pygame.sprite.Group()
     aves = pygame.sprite.Group()
@@ -100,6 +95,12 @@ def jugar_escenario(screen):
         sprite.rect = img.get_rect(topleft=pos)
         grupo_colisiones.add(sprite)
 
+    # --- Tormenta tropical ---
+    tormenta = TormentaTropical()
+    tormenta_delay_inicial = 10  # segundos
+    inicio_escenario = pygame.time.get_ticks()  # marca el tiempo al iniciar
+
+
     # --- Loop principal ---
     while True:
         for event in pygame.event.get():
@@ -108,7 +109,6 @@ def jugar_escenario(screen):
 
         screen.fill((255, 255, 255))
 
-        # Movimiento del dron
         keys = pygame.key.get_pressed()
         is_moving = False
         speed_multiplier = 3 if keys[pygame.K_LSHIFT] else 1
@@ -209,9 +209,16 @@ def jugar_escenario(screen):
         for anim in grupo_animaciones_ave:
             screen.blit(anim.image, (anim.rect.x, anim.rect.y - scroll_y))
 
+        # Mostrar tormenta al final (encima de todo)
+        tiempo_actual = pygame.time.get_ticks()
+        if not tormenta.activa and (tiempo_actual - inicio_escenario > tormenta_delay_inicial * 1000):
+            if random.random() < 0.01:
+                tormenta.activar()
+
+
         if vida_manager.esta_muerto():
             resultado = mostrar_pantalla_gameover(screen)
-            return resultado  # "menu" o "exit"
+            return resultado
 
         pygame.display.flip()
         clock.tick(FPS)
