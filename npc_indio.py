@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import time  # Necesario para congelamiento
 
 class Flecha(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos, accuracy=0.1):
@@ -30,15 +31,11 @@ class Flecha(pygame.sprite.Sprite):
 
         if pygame.sprite.collide_mask(self, drone_ref):
             self.kill()
-
-        if not pygame.Rect(0, 0, 1280, 2880).colliderect(self.rect):
-            self.kill()
-        
-        if pygame.sprite.collide_mask(self, drone_ref):
-            self.kill()
             if hasattr(drone_ref, "vida_manager"):
                 drone_ref.vida_manager.perder_vida()
 
+        if not pygame.Rect(0, 0, 1280, 2880).colliderect(self.rect):
+            self.kill()
 
 
 class Indio(pygame.sprite.Sprite):
@@ -63,6 +60,8 @@ class Indio(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animation_timer = 0
 
+        self.congelado_hasta = 0  # ← NUEVO
+
     def load_assets(self):
         self.frames = [
             pygame.image.load(f"assets/indio/indio_flecha/{i}.png").convert_alpha()
@@ -71,6 +70,9 @@ class Indio(pygame.sprite.Sprite):
         self.image = self.frames[0]
 
     def update(self, drone_ref=None):
+        if time.time() < self.congelado_hasta:
+            return  # ← Congelado: no se mueve, no dispara
+
         if drone_ref:
             self.drone_ref = drone_ref
 
@@ -92,9 +94,8 @@ class Indio(pygame.sprite.Sprite):
         distance = math.hypot(dx, dy)
 
         if distance == 0:
-            return  # Evita división por 0
+            return
 
-        # Zona muerta ampliada para evitar vibraciones
         if distance > self.min_distance + 20:
             norm_dx = dx / distance
             norm_dy = dy / distance
@@ -130,17 +131,17 @@ class Indio(pygame.sprite.Sprite):
     def handle_collisions(self):
         now = pygame.time.get_ticks()
         if now - self.spawn_time < 1000:
-            return  # 1 segundo de libertad al nacer
+            return
 
         for surface in self.collidable_surfaces:
             if self.rect.colliderect(surface.rect):
-                # Rebote: retroceso realista
                 dx = self.drone_ref.rect.centerx - self.rect.centerx
                 dy = self.drone_ref.rect.centery - self.rect.centery
                 distance = math.hypot(dx, dy) or 1
 
                 self.rect.x -= (dx / distance) * self.speed * 2
                 self.rect.y -= (dy / distance) * self.speed * 2
-
-                # Límite dentro de pantalla
                 self.rect.clamp_ip(pygame.Rect(0, 0, 1280, 2880))
+
+    def congelar_por(self, segundos):  # ← NUEVO MÉTODO
+        self.congelado_hasta = time.time() + segundos

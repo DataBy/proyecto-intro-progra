@@ -34,12 +34,12 @@ def manejar_colisiones_huevo(disparos, indios, aves):
         for indio in indios:
             if pygame.sprite.collide_mask(disparo, indio):
                 if hasattr(indio, "congelar_por"):
-                    indio.congelar_por(1)
+                    indio.congelar_por(3) # Tiempo congelado 
                 disparo.kill()
                 break
         for ave in aves:
             if pygame.sprite.collide_mask(disparo, ave):
                 if hasattr(ave, "congelar_por"):
-                    ave.congelar_por(1)
+                    ave.congelar_por(3) # Tiempo congelado 
                 disparo.kill()
                 break

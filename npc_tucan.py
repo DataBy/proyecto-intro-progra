@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import time  # Necesario para congelamiento
 
 class proyectil_ave(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos):
@@ -80,9 +81,10 @@ class Ave(pygame.sprite.Sprite):
         self.animation_timer = 0
         self.frame_index = 0
 
-        # Cooldown real basado en tiempo
         self.ultimo_disparo = 0
-        self.cooldown_disparo = 1000  # 1 segundo en milisegundos
+        self.cooldown_disparo = 1000  # milisegundos
+
+        self.congelado_hasta = 0  # ← nuevo
 
     def random_point_in_area(self):
         return (
@@ -91,6 +93,9 @@ class Ave(pygame.sprite.Sprite):
         )
 
     def update(self, drone_ref=None):
+        if time.time() < self.congelado_hasta:
+            return  # congelado: no se mueve, no dispara
+
         if drone_ref:
             self.drone_ref = drone_ref
 
@@ -143,3 +148,6 @@ class Ave(pygame.sprite.Sprite):
             )
             self.animaciones_group.add(animacion)
             self.ultimo_disparo = tiempo_actual
+
+    def congelar_por(self, segundos):
+        self.congelado_hasta = time.time() + segundos
