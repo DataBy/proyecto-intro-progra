@@ -6,6 +6,7 @@ from npc_tucan import Ave
 from sistema_vidas import VidaManager, VidaFlotante
 from game_over_screen import mostrar_pantalla_gameover
 from lluvia import TormentaTropical
+from disparo import HuevoDisparo, manejar_colisiones_huevo
 
 def jugar_escenario(screen):
     WIDTH, HEIGHT = 1280, 720
@@ -55,8 +56,8 @@ def jugar_escenario(screen):
     grupo_colisiones = pygame.sprite.Group()
 
     indios_creados = False
-    INDIO_START_DELAY = 5
     aves_creadas = False
+    INDIO_START_DELAY = 5
     AVE_START_DELAY = 5
 
     INDIO_POSICIONES = [
@@ -95,17 +96,28 @@ def jugar_escenario(screen):
         sprite.rect = img.get_rect(topleft=pos)
         grupo_colisiones.add(sprite)
 
-    # --- Tormenta tropical ---
     tormenta = TormentaTropical()
-    tormenta_delay_inicial = 5  # segundos
-    inicio_escenario = pygame.time.get_ticks()  # marca el tiempo al iniciar
+    tormenta_delay_inicial = 5
+    inicio_escenario = pygame.time.get_ticks()
 
+    disparos = pygame.sprite.Group()
 
-    # --- Loop principal ---
+    objetivo_actual = None
+    mostrar_mira = False
+    mira_img = pygame.Surface((10, 10), pygame.SRCALPHA)
+    pygame.draw.circle(mira_img, (255, 0, 0), (5, 5), 5)
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "exit"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if objetivo_actual:
+                        huevo = HuevoDisparo(drone_rect.centerx, drone_rect.top, objetivo_actual.rect.center)
+                    else:
+                        huevo = HuevoDisparo(drone_rect.centerx, drone_rect.top)
+                    disparos.add(huevo)
 
         screen.fill((255, 255, 255))
 
@@ -135,11 +147,22 @@ def jugar_escenario(screen):
             drone_timer = 0
 
         current_sprite = drone_sprites[drone_index]
-
         dron_ref_global.rect = drone_rect.copy()
         dron_ref_global.image = current_sprite
         dron_ref_global.mask = pygame.mask.from_surface(current_sprite)
         dron_ref_global.vida_manager = vida_manager
+
+        mostrar_mira = keys[pygame.K_LALT] or keys[pygame.K_RALT]
+        objetivo_actual = None
+        if mostrar_mira:
+            min_dist = float("inf")
+            for npc in list(indios) + list(aves):
+                dx = npc.rect.centerx - drone_rect.centerx
+                dy = npc.rect.centery - drone_rect.centery
+                dist = dx * dx + dy * dy
+                if dist < min_dist:
+                    min_dist = dist
+                    objetivo_actual = npc
 
         screen.blit(background, (0, -scroll_y))
 
@@ -209,21 +232,25 @@ def jugar_escenario(screen):
         for anim in grupo_animaciones_ave:
             screen.blit(anim.image, (anim.rect.x, anim.rect.y - scroll_y))
 
-
-        # --- Tormenta ---
-
-        tiempo_actual = pygame.time.get_ticks() / 1000  # en segundos
-        # Solo permitir activar tormenta después del delay inicial Y después del buen clima
+        tiempo_actual = pygame.time.get_ticks() / 1000
         puede_iniciar = (
             not tormenta.activa and
             tiempo_actual > tormenta_delay_inicial and
-            tiempo_actual - tormenta.ultimo_fin > 5  # 5 segundos de buen clima
+            tiempo_actual - tormenta.ultimo_fin > 5
         )
         if puede_iniciar and random.random() < 0.01:
             tormenta.activar()
-        tormenta.update(screen, scroll_y)  # <- Esta línea es esencial, va siempre fuera del if
+        tormenta.update(screen, scroll_y)
 
+        disparos.update()
+        manejar_colisiones_huevo(disparos, indios, aves)
+        for disparo in disparos:
+            screen.blit(disparo.image, (disparo.rect.x, disparo.rect.y - scroll_y))
 
+        if mostrar_mira and objetivo_actual:
+            mira_x = objetivo_actual.rect.centerx
+            mira_y = objetivo_actual.rect.centery
+            screen.blit(mira_img, (mira_x - 5, mira_y - scroll_y))
 
         if vida_manager.esta_muerto():
             resultado = mostrar_pantalla_gameover(screen)
