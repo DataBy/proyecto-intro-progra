@@ -7,8 +7,7 @@ class proyectil_ave(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.transform.scale(
             pygame.image.load("assets/bola/sprite_0.png").convert_alpha(), (10, 10)
-            )
-
+        )
         self.rect = self.image.get_rect(center=(x, y))
 
         dx = target_pos[0] - x
@@ -26,14 +25,11 @@ class proyectil_ave(pygame.sprite.Sprite):
 
         if pygame.sprite.collide_mask(self, drone_ref):
             self.kill()
+            if hasattr(drone_ref, "vida_manager"):
+                drone_ref.vida_manager.perder_vida()
 
         if not pygame.Rect(0, 0, 1280, 2880).colliderect(self.rect):
             self.kill()
-
-        if pygame.sprite.collide_mask(self, drone_ref):
-            self.kill()
-            if hasattr(drone_ref, "vida_manager"):
-                drone_ref.vida_manager.perder_vida()
 
 
 class Animacion_disparo_ave(pygame.sprite.Sprite):
@@ -42,8 +38,7 @@ class Animacion_disparo_ave(pygame.sprite.Sprite):
         self.frames = [
             pygame.transform.scale(pygame.image.load(f"assets/bola/sprite_{i}.png").convert_alpha(), (32, 32))
             for i in range(5)
-            ]
-
+        ]
         self.image = self.frames[0]
         self.rect = self.image.get_rect(center=(x, y))
         self.frame_index = 0
@@ -70,13 +65,9 @@ class Ave(pygame.sprite.Sprite):
         self.frames = [
             pygame.transform.scale(pygame.image.load(f"assets/ave/sprite_{i}.png").convert_alpha(), (45, 45))
             for i in range(2)
-            ]
-
-
+        ]
         self.image = self.frames[0]
         self.rect = self.image.get_rect(center=area_rect.center)
-
-
 
         self.area_rect = area_rect
         self.drone_ref = drone_ref
@@ -84,12 +75,14 @@ class Ave(pygame.sprite.Sprite):
         self.collidable_surfaces = collidable_surfaces
         self.animaciones_group = animation_group
 
-
         self.target_pos = self.random_point_in_area()
         self.speed = 2
-        self.shoot_cooldown = 0
         self.animation_timer = 0
         self.frame_index = 0
+
+        # Cooldown real basado en tiempo
+        self.ultimo_disparo = 0
+        self.cooldown_disparo = 1000  # 1 segundo en milisegundos
 
     def random_point_in_area(self):
         return (
@@ -122,27 +115,31 @@ class Ave(pygame.sprite.Sprite):
         else:
             self.rect.x += int((dx / distance) * self.speed)
             self.rect.y += int((dy / distance) * self.speed)
-    
+
     def draw(self, surface, scroll_y=0):
         surface.blit(self.image, (self.rect.x, self.rect.y - scroll_y))
 
-
     def atacar_en_cercania(self):
-        self.shoot_cooldown += 1
+        tiempo_actual = pygame.time.get_ticks()
+
         drone_dx = self.drone_ref.rect.centerx - self.rect.centerx
         drone_dy = self.drone_ref.rect.centery - self.rect.centery
-        distance = math.hypot(drone_dx, drone_dy)
+        distancia = math.hypot(drone_dx, drone_dy)
 
-        if self.shoot_cooldown > 60 and distance < 400:
-            if not any(
+        puede_disparar = (
+            distancia < 400
+            and tiempo_actual - self.ultimo_disparo >= self.cooldown_disparo
+            and not any(
                 isinstance(obj, Animacion_disparo_ave) and obj.rect.center == self.rect.center
                 for obj in self.animaciones_group
-                    ):
-                        animacion = Animacion_disparo_ave(
-                            self.rect.centerx, self.rect.centery,
-                            self.drone_ref.rect.center,
-                            self.projectiles
-                    )
-                        self.animaciones_group.add(animacion)
+            )
+        )
 
-
+        if puede_disparar:
+            animacion = Animacion_disparo_ave(
+                self.rect.centerx, self.rect.centery,
+                self.drone_ref.rect.center,
+                self.projectiles
+            )
+            self.animaciones_group.add(animacion)
+            self.ultimo_disparo = tiempo_actual

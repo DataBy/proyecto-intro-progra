@@ -97,7 +97,7 @@ def jugar_escenario(screen):
 
     # --- Tormenta tropical ---
     tormenta = TormentaTropical()
-    tormenta_delay_inicial = 10  # segundos
+    tormenta_delay_inicial = 5  # segundos
     inicio_escenario = pygame.time.get_ticks()  # marca el tiempo al iniciar
 
 
@@ -209,11 +209,20 @@ def jugar_escenario(screen):
         for anim in grupo_animaciones_ave:
             screen.blit(anim.image, (anim.rect.x, anim.rect.y - scroll_y))
 
-        # Mostrar tormenta al final (encima de todo)
-        tiempo_actual = pygame.time.get_ticks()
-        if not tormenta.activa and (tiempo_actual - inicio_escenario > tormenta_delay_inicial * 1000):
-            if random.random() < 0.01:
-                tormenta.activar()
+
+        # --- Tormenta ---
+
+        tiempo_actual = pygame.time.get_ticks() / 1000  # en segundos
+        # Solo permitir activar tormenta después del delay inicial Y después del buen clima
+        puede_iniciar = (
+            not tormenta.activa and
+            tiempo_actual > tormenta_delay_inicial and
+            tiempo_actual - tormenta.ultimo_fin > 5  # 5 segundos de buen clima
+        )
+        if puede_iniciar and random.random() < 0.01:
+            tormenta.activar()
+        tormenta.update(screen, scroll_y)  # <- Esta línea es esencial, va siempre fuera del if
+
 
 
         if vida_manager.esta_muerto():

@@ -4,6 +4,7 @@ import random
 
 class TormentaTropical:
     def __init__(self, duracion=15, fps_anim=6):
+        self.ultimo_fin = 0  # marca el tiempo cuando termina la tormenta
         self.activa = False
         self.duracion = duracion
         self.inicio_tiempo = 0
@@ -42,6 +43,7 @@ class TormentaTropical:
     def desactivar(self):
         self.activa = False
         self.mostrando_flash = False
+        self.ultimo_fin = time.time()  # guardar el momento en que terminó
 
     def update(self, screen, scroll_y):
         if not self.activa:
