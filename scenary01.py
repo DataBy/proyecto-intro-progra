@@ -7,6 +7,7 @@ from sistema_vidas import VidaManager, VidaFlotante
 from game_over_screen import mostrar_pantalla_gameover
 from lluvia import TormentaTropical
 from disparo import HuevoDisparo, manejar_colisiones_huevo
+from arbol import arbol_cayendo
 
 def jugar_escenario(screen):
     WIDTH, HEIGHT = 1280, 720
@@ -86,6 +87,16 @@ def jugar_escenario(screen):
         ("element08.png", (-250, 290)),
         ("element09.png", (-20, 10)),
     ]
+    
+    grupo_arboles = pygame.sprite.Group()
+    ARBOLES_POS = [
+        (220, 295)
+    ]
+    
+    for pos in ARBOLES_POS:
+        arbol = arbol_cayendo(pos[0], pos[1], dron_ref_global)
+        grupo_arboles.add(arbol)
+
 
     for filename, pos in elementos_info:
         img = pygame.image.load(f"assets/background01/{filename}").convert_alpha()
@@ -187,6 +198,12 @@ def jugar_escenario(screen):
                 if keys[pygame.K_DOWN]: drone_y -= retroceso
                 if keys[pygame.K_LEFT]: drone_x += retroceso
                 if keys[pygame.K_RIGHT]: drone_x -= retroceso
+        
+        for arbol in grupo_arboles:
+            arbol.chequear_activacion(drone_rect.center)
+            arbol.update()
+            screen.blit(arbol.image, (arbol.rect.x, arbol.rect.y - scroll_y))
+
 
         for elem in elementos_fisicos:
             elem_x, elem_y = elem["pos"]
@@ -243,7 +260,7 @@ def jugar_escenario(screen):
         tormenta.update(screen, scroll_y)
 
         disparos.update()
-        manejar_colisiones_huevo(disparos, indios, aves)
+        manejar_colisiones_huevo(disparos, indios, aves, grupo_arboles)
         for disparo in disparos:
             screen.blit(disparo.image, (disparo.rect.x, disparo.rect.y - scroll_y))
 
