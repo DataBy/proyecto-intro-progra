@@ -5,6 +5,7 @@ import time  # Necesario para congelamiento
 
 class proyectil_ave(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos):
+        
         super().__init__()
         self.image = pygame.transform.scale(
             pygame.image.load("assets/bola/sprite_0.png").convert_alpha(), (10, 10)
@@ -70,6 +71,7 @@ class Ave(pygame.sprite.Sprite):
         self.image = self.frames[0]
         self.rect = self.image.get_rect(center=area_rect.center)
 
+        self.inicio_creacion = pygame.time.get_ticks()
         self.area_rect = area_rect
         self.drone_ref = drone_ref
         self.projectiles = all_projectiles
@@ -93,6 +95,9 @@ class Ave(pygame.sprite.Sprite):
         )
 
     def update(self, drone_ref=None):
+        if pygame.time.get_ticks() - self.inicio_creacion < 5000:
+            return  # Espera 5 segundos
+
         if time.time() < self.congelado_hasta:
             return  # congelado: no se mueve, no dispara
 

@@ -5,6 +5,7 @@ import time  # Necesario para congelamiento
 
 class Flecha(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos, accuracy=0.1):
+        
         super().__init__()
         original_image = pygame.image.load("assets/indio/flecha.png").convert_alpha()
         self.rect = original_image.get_rect(center=(x, y))
@@ -48,6 +49,7 @@ class Indio(pygame.sprite.Sprite):
                     y + random.randint(-150, 150))
         )
 
+        self.inicio_creacion = pygame.time.get_ticks()
         self.speed = random.uniform(1.5, 2.5)
         self.drone_ref = drone_ref
         self.arrow_group = all_arrows_group
@@ -70,6 +72,10 @@ class Indio(pygame.sprite.Sprite):
         self.image = self.frames[0]
 
     def update(self, drone_ref=None):
+        if pygame.time.get_ticks() - self.inicio_creacion < 5000:
+            return  # Esperar 5 segundos antes de empezar
+
+
         if time.time() < self.congelado_hasta:
             return  # ← Congelado: no se mueve, no dispara
 

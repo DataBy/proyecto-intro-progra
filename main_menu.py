@@ -42,9 +42,9 @@ def mostrar_menu(screen):
         screen.blit(assets["background"], (0, 0))
 
         # Button positions
-        PLAY_BTN_POS = (705, 185)
-        OPTIONS_BTN_POS = (705, 315)
-        EXIT_BTN_POS = (705, 442)
+        PLAY_BTN_POS = (450, 240)
+        OPTIONS_BTN_POS = (450, 365)
+        EXIT_BTN_POS = (450, 495)
 
         # Play
         play_rect = assets["play"].get_rect(topleft=PLAY_BTN_POS)
