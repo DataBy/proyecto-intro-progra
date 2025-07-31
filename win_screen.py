@@ -1,0 +1,3 @@
+# Pantalla gane
+# Vaca
+# Meta
