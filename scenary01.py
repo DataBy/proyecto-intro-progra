@@ -7,12 +7,19 @@ from sistema_vidas import VidaManager, VidaFlotante
 from game_over_screen import mostrar_pantalla_gameover
 from lluvia import TormentaTropical
 from disparo import HuevoDisparo, manejar_colisiones_huevo
+from meta import MetaFinal
+from pantalla_gano import mostrar_pantalla_gano
+
 
 def jugar_escenario(screen):
     WIDTH, HEIGHT = 1280, 720
     FPS = 60
     DRONE_SPEED = 5
     ZOOM_FACTOR = 1.1
+
+    # --- Meta ---
+    meta = MetaFinal(1000, 600)  # Puedes cambiar manualmente X y Y
+
 
     clock = pygame.time.Clock()
 
@@ -108,6 +115,8 @@ def jugar_escenario(screen):
     pygame.draw.circle(mira_img, (255, 0, 0), (5, 5), 5)
 
     while True:
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "exit"
@@ -255,6 +264,16 @@ def jugar_escenario(screen):
         if vida_manager.esta_muerto():
             resultado = mostrar_pantalla_gameover(screen)
             return resultado
+        
+
+        # --- Meta ---
+        meta.update()
+        meta.draw(screen, scroll_y)
+
+        if meta.check_colision(dron_ref_global.rect):
+            resultado = mostrar_pantalla_gano(screen)
+            if resultado == "menu":
+                return
 
         pygame.display.flip()
         clock.tick(FPS)
