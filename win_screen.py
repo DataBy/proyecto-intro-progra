@@ -1,3 +1,2 @@
-# Pantalla gane
 # Vaca
-# Meta
+# Documentación
