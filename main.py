@@ -10,7 +10,7 @@ def main():
     pygame.init()
     musica.reproducir_musica()  # ✅ Inicia música de fondo
     screen = pygame.display.set_mode((1280, 720))
-    pygame.display.set_caption("Héroes del Hambre")
+    pygame.display.set_caption("Main")
 
     while True:
         accion = main_menu.mostrar_menu(screen)
