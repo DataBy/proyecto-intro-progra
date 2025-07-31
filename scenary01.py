@@ -19,7 +19,7 @@ def jugar_escenario(screen):
     ZOOM_FACTOR = 1.1
 
     # --- Meta ---
-    meta = MetaFinal(1000, 600)  # Puedes cambiar manualmente X y Y
+    meta = MetaFinal(600, 100)  # Puedes cambiar manualmente X y Y
 
 
     clock = pygame.time.Clock()
