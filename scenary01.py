@@ -7,13 +7,10 @@ from sistema_vidas import VidaManager, VidaFlotante
 from game_over_screen import mostrar_pantalla_gameover
 from lluvia import TormentaTropical
 from disparo import HuevoDisparo, manejar_colisiones_huevo
-<<<<<<< HEAD
 from meta import MetaFinal
 from pantalla_gano import mostrar_pantalla_gano
-
-=======
 from arbol import arbol_cayendo
->>>>>>> 1babf4e5e0b29baf9cc00a3d1a9a86d64a5835d2
+
 
 def jugar_escenario(screen):
     WIDTH, HEIGHT = 1280, 720
