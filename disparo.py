@@ -29,7 +29,7 @@ class HuevoDisparo(pygame.sprite.Sprite):
         if self.rect.bottom < 0 or self.rect.top > 3000:
             self.kill()
 
-def manejar_colisiones_huevo(disparos, indios, aves):
+def manejar_colisiones_huevo(disparos, indios, aves, arboles):
     for disparo in disparos:
         for indio in indios:
             if pygame.sprite.collide_mask(disparo, indio):
@@ -41,5 +41,11 @@ def manejar_colisiones_huevo(disparos, indios, aves):
             if pygame.sprite.collide_mask(disparo, ave):
                 if hasattr(ave, "congelar_por"):
                     ave.congelar_por(3) # Tiempo congelado 
+                disparo.kill()
+                break
+        for arbol in arboles:
+            if pygame.sprite.collide_mask(disparo, arbol):
+                if hasattr(arbol, "romper"):
+                    arbol.romper()
                 disparo.kill()
                 break
