@@ -3,9 +3,13 @@ import random
 import math
 import time  # Necesario para congelamiento
 
+# ------------------------
+# CONFIGURACIÓN AJUSTABLE
+FRECUENCIA_DISPARO = 90  # 90 = 1 disparo x 1.5  30 = 2 disparos x 1s
+# ------------------------
+
 class Flecha(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos, accuracy=0.1):
-        
         super().__init__()
         original_image = pygame.image.load("assets/indio/flecha.png").convert_alpha()
         self.rect = original_image.get_rect(center=(x, y))
@@ -56,13 +60,13 @@ class Indio(pygame.sprite.Sprite):
         self.collidable_surfaces = collidable_surfaces
 
         self.min_distance = random.randint(150, 250)
-        self.arrow_timer = random.randint(0, 60)
+        self.arrow_timer = random.randint(0, FRECUENCIA_DISPARO)
         self.spawn_time = pygame.time.get_ticks()
 
         self.frame_index = 0
         self.animation_timer = 0
 
-        self.congelado_hasta = 0  # ← NUEVO
+        self.congelado_hasta = 0
 
     def load_assets(self):
         self.frames = [
@@ -75,9 +79,8 @@ class Indio(pygame.sprite.Sprite):
         if pygame.time.get_ticks() - self.inicio_creacion < 5000:
             return  # Esperar 5 segundos antes de empezar
 
-
         if time.time() < self.congelado_hasta:
-            return  # ← Congelado: no se mueve, no dispara
+            return  # Congelado: no se mueve, no dispara
 
         if drone_ref:
             self.drone_ref = drone_ref
@@ -121,7 +124,7 @@ class Indio(pygame.sprite.Sprite):
             self.drone_ref.rect.centery - self.rect.centery
         )
 
-        if self.arrow_timer >= 60 and distance_to_drone < 500:
+        if self.arrow_timer >= FRECUENCIA_DISPARO and distance_to_drone < 500:
             self.shoot_arrow()
             self.arrow_timer = 0
 
@@ -149,5 +152,5 @@ class Indio(pygame.sprite.Sprite):
                 self.rect.y -= (dy / distance) * self.speed * 2
                 self.rect.clamp_ip(pygame.Rect(0, 0, 1280, 2880))
 
-    def congelar_por(self, segundos):  # ← NUEVO MÉTODO
+    def congelar_por(self, segundos):
         self.congelado_hasta = time.time() + segundos

@@ -3,9 +3,13 @@ import random
 import math
 import time  # Necesario para congelamiento
 
+# ------------------------
+# CONFIGURACIÓN AJUSTABLE
+FRECUENCIA_DISPARO = 1500  # En milisegundos (1000 = 1 segundo entre disparos)
+# ------------------------
+
 class proyectil_ave(pygame.sprite.Sprite):
     def __init__(self, x, y, target_pos):
-        
         super().__init__()
         self.image = pygame.transform.scale(
             pygame.image.load("assets/bola/sprite_0.png").convert_alpha(), (10, 10)
@@ -84,9 +88,9 @@ class Ave(pygame.sprite.Sprite):
         self.frame_index = 0
 
         self.ultimo_disparo = 0
-        self.cooldown_disparo = 1000  # milisegundos
+        self.cooldown_disparo = FRECUENCIA_DISPARO  # ← ahora usa la variable
 
-        self.congelado_hasta = 0  # ← nuevo
+        self.congelado_hasta = 0  # congelamiento
 
     def random_point_in_area(self):
         return (

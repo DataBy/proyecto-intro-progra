@@ -10,6 +10,7 @@ from disparo import HuevoDisparo, manejar_colisiones_huevo
 from meta import MetaFinal
 from pantalla_gano import mostrar_pantalla_gano
 from arbol import arbol_cayendo
+from npc_vaca import VacaNPC
 
 
 def jugar_escenario(screen):
@@ -67,6 +68,12 @@ def jugar_escenario(screen):
     aves_creadas = False
     INDIO_START_DELAY = 5
     AVE_START_DELAY = 5
+
+
+    # --- Vacas ---
+    vacas = pygame.sprite.Group()
+    # Posiciones manuales (puedes cambiar)
+    vacas.add(VacaNPC(300, 1880))
 
     INDIO_POSICIONES = [
         (random.randint(100, 1000), 2600),
@@ -235,6 +242,15 @@ def jugar_escenario(screen):
         indios.update(dron_ref_global)
         for indio in indios:
             screen.blit(indio.image, (indio.rect.x, indio.rect.y - scroll_y))
+
+        # --- vacas ---
+        for vaca in vacas:
+            vaca.update()
+            for fresco in vaca.lista_disparos:
+                if dron_ref_global.rect.colliderect(fresco.rect):
+                    fresco.kill()
+                    vida_manager.perder_vida()
+            vaca.draw(screen, scroll_y)
 
         flechas.update(dron_ref_global)
         for flecha in flechas:
