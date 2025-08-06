@@ -1,2 +1,0 @@
-# Vaca
-# Documentación
