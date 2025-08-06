@@ -56,8 +56,9 @@ pip install pygame
    ```
 2. Usá las teclas de dirección para mover el dron.
 3. Usá `ESPACIO` para lanzar disparos (huevos).
-4. Podés usar `ALT` para apuntar automáticamente al enemigo más cercano.
-5. El objetivo es llegar a la **Meta Final** antes de quedarte sin vidas.
+4. Debes usar `ALT` para apuntar automáticamente al enemigo más cercano.
+5. Puedes usar `SHIFT` para activar el aeroturbo.
+6. El objetivo es llegar a la **Meta Final** antes de quedarte sin vidas.
 
 Para una guía completa y visual del juego, podés seguir este tutorial:
 
